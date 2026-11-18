@@ -6,7 +6,7 @@ import { blueTop } from "./data/testData";
 test.describe("Cart", () => {
   test(
     "a product added from the products page shows its name and price in the cart",
-    { tag: "@smoke" },
+    { tag: ["@E2E", "@Regression"] },
     async ({ page }) => {
       const products = new ProductsPage(page);
       const cart = new CartPage(page);
@@ -21,12 +21,10 @@ test.describe("Cart", () => {
       await cart.expectProductInCart(product);
     },
   );
-});
 
-test.describe("Cart removal", () => {
   test(
     "deleting the only product empties the cart",
-    { tag: "@regression" },
+    { tag: ["@E2E", "@Regression"] },
     async ({ page }) => {
       const products = new ProductsPage(page);
       const cart = new CartPage(page);

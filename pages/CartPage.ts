@@ -1,4 +1,4 @@
-import { expect, type Locator } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 import { BasePage } from "./BasePage";
 import type { ProductDetails } from "../tests/data/testData";
 
@@ -20,32 +20,42 @@ export class CartPage extends BasePage {
     });
   }
 
+  async expectItemCount(count: number): Promise<void> {
+    await test.step(`Verify cart has ${count} item(s)`, async () => {
+      await expect(this.cartRows).toHaveCount(count);
+    });
+  }
+
   /** Checks the product is in the cart with the expected name and price. */
   async expectProductInCart(product: ProductDetails): Promise<void> {
-    const row = this.rowFor(product);
-    await expect(row).toHaveCount(1);
-    await expect(row.locator(".cart_price p")).toHaveText(product.price);
-  }
-
-  async expectItemCount(count: number): Promise<void> {
-    await expect(this.cartRows).toHaveCount(count);
-  }
-
-  /** Removes the product's row with the delete button. */
-  async deleteProduct(product: ProductDetails): Promise<void> {
-    await this.rowFor(product).locator(".cart_quantity_delete").click();
-  }
-
-  async expectEmpty(): Promise<void> {
-    await expect(this.page.locator("#empty_cart")).toBeVisible();
+    await test.step(`Verify "${product.name}" is in the cart at ${product.price}`, async () => {
+      const row = this.rowFor(product);
+      await expect(row).toHaveCount(1);
+      await expect(row.locator(".cart_price p")).toHaveText(product.price);
+    });
   }
 
   async expectQuantity(
     product: ProductDetails,
     quantity: number,
   ): Promise<void> {
-    await expect(
-      this.rowFor(product).locator(".cart_quantity button"),
-    ).toHaveText(String(quantity));
+    await test.step(`Verify "${product.name}" quantity is ${quantity}`, async () => {
+      await expect(
+        this.rowFor(product).locator(".cart_quantity button"),
+      ).toHaveText(String(quantity));
+    });
+  }
+
+  /** Removes the product's row with the delete button. */
+  async deleteProduct(product: ProductDetails): Promise<void> {
+    await test.step(`Delete "${product.name}" from the cart`, async () => {
+      await this.rowFor(product).locator(".cart_quantity_delete").click();
+    });
+  }
+
+  async expectEmpty(): Promise<void> {
+    await test.step("Verify cart is empty", async () => {
+      await expect(this.page.locator("#empty_cart")).toBeVisible();
+    });
   }
 }

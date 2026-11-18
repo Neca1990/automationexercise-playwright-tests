@@ -33,3 +33,8 @@ The flow has five stages. Each stage is a Claude Code session with its own skill
 
 - `npm run check` (typecheck, format check, privacy guard) and `npm test` must pass locally before every push.
 - CI must pass before merge. The merge does not happen while any check fails.
+
+## Branches
+
+- Each change goes on its own branch (`tests/<topic>`), then a pull request into `main`.
+- `main` is never committed to directly.

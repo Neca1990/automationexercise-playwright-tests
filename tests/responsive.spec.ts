@@ -7,7 +7,7 @@ test.describe("Small screen", () => {
 
   test(
     "product cards are still visible on a phone-sized screen",
-    { tag: "@regression" },
+    { tag: ["@Functional", "@Regression"] },
     async ({ page }) => {
       const products = new ProductsPage(page);
       await products.open();

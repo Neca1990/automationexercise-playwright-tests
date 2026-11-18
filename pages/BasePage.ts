@@ -1,4 +1,4 @@
-import type { Page, Locator } from "@playwright/test";
+import { test, type Locator, type Page } from "@playwright/test";
 
 /** Shared page-object base: holds the Playwright page and common helpers. */
 export abstract class BasePage {
@@ -13,6 +13,14 @@ export abstract class BasePage {
   }
 
   async gotoPath(path: string): Promise<void> {
-    await this.page.goto(path);
+    await test.step(`Open ${path}`, async () => {
+      await this.page.goto(path);
+    });
+  }
+
+  async goBack(): Promise<void> {
+    await test.step("Go back in the browser", async () => {
+      await this.page.goBack();
+    });
   }
 }

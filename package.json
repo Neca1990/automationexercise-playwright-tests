@@ -9,7 +9,7 @@
     "report": "playwright show-report",
     "guard": "bash scripts/check-private.sh",
     "flow": "bash scripts/flow.sh",
-    "test:smoke": "playwright test --grep @smoke",
+    "test:smoke": "playwright test --grep @Smoke",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

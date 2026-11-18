@@ -5,7 +5,7 @@ import { invalidPassword, unknownEmail } from "./data/testData";
 test.describe("Login page", () => {
   test(
     "rejects an unknown account and stays on the login page",
-    { tag: "@regression" },
+    { tag: ["@Functional", "@Negative", "@Regression"] },
     async ({ page }) => {
       const login = new LoginPage(page);
       await login.open();

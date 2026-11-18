@@ -5,7 +5,7 @@ import { blueTop } from "./data/testData";
 test.describe("Products interactions", () => {
   test(
     "hovering a product card reveals its overlay",
-    { tag: "@regression" },
+    { tag: ["@Functional", "@Regression"] },
     async ({ page }) => {
       const products = new ProductsPage(page);
       await products.open();
@@ -16,7 +16,7 @@ test.describe("Products interactions", () => {
 
   test(
     "a search with no matching product shows no results",
-    { tag: "@regression" },
+    { tag: ["@Functional", "@Negative", "@Regression"] },
     async ({ page }) => {
       const products = new ProductsPage(page);
       await products.open();

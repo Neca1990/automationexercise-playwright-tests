@@ -6,7 +6,7 @@ import { PageControls } from "../pages/components/PageControls";
 test.describe("Scrolling", () => {
   test(
     "scrolling down reaches the footer subscription section",
-    { tag: "@regression" },
+    { tag: ["@Functional", "@Regression"] },
     async ({ page }) => {
       const home = new HomePage(page);
       const footer = new Footer(page);
@@ -19,7 +19,7 @@ test.describe("Scrolling", () => {
 
   test(
     "the scroll-up button returns the page to the top",
-    { tag: "@regression" },
+    { tag: ["@Functional", "@Regression"] },
     async ({ page }) => {
       const home = new HomePage(page);
       const controls = new PageControls(page);

@@ -6,7 +6,7 @@ import { blueTop, brandPolo } from "./data/testData";
 test.describe("Brand filter", () => {
   test(
     "selecting a brand in the sidebar lists its products",
-    { tag: "@regression" },
+    { tag: ["@Functional", "@Regression"] },
     async ({ page }) => {
       const home = new HomePage(page);
       const brand = new BrandPage(page);
