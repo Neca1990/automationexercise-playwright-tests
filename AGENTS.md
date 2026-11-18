@@ -10,6 +10,7 @@ Before you write or change code, read the file in `docs/` that matches the task:
 - `docs/selectors.md`: how to pick locators on the site.
 - `docs/workflow.md`: plan, implement, review, fix, and the test gate before push.
 - `docs/page-objects.md`: Page Object Model rules. Every new spec uses page objects in `pages/`.
+- `docs/api-testing.md`: API layer rules: `ApiClient` owns paths and shapes, and steps and tests use it.
 - `docs/quality-rules.md`: mandatory quality rules: test data in `tests/data/`, unique locators, strong assertions, tags, and the pre-push checks.
 
 ## Privacy rules (mandatory)

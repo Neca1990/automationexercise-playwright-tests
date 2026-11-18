@@ -1,31 +1,25 @@
 import { expect, test } from "../fixtures";
-import { blueTop } from "../data/testData";
-
-/** Parses the API body. The site sends JSON with a text/html content type, so the body is read as text. */
-async function readJson(response: {
-  text: () => Promise<string>;
-}): Promise<unknown> {
-  return JSON.parse(await response.text());
-}
+import { ApiClient } from "./ApiClient";
+import {
+  blueTop,
+  brandNames,
+  unsupportedMethodResponseCode,
+} from "../data/testData";
 
 test.describe("Products API", () => {
   test(
-    "GET productsList returns the product catalogue",
+    "GET productsList contains Blue Top with its price",
     { tag: ["@Smoke", "@Regression"] },
     async ({ request }) => {
-      const response = await request.get("/api/productsList");
-      expect(response.status()).toBe(200);
+      const api = new ApiClient(request);
+      const { responseCode, products } = await api.getProductsList();
 
-      const body = (await readJson(response)) as {
-        responseCode: number;
-        products: Array<Record<string, unknown>>;
-      };
-      expect(body.responseCode).toBe(200);
-      expect(body.products.length).toBeGreaterThan(0);
-
-      const product = body.products.find((p) => p.name === blueTop.name);
-      expect(product, `${blueTop.name} is in the catalogue`).toBeDefined();
-      expect(product?.price).toBe(blueTop.price);
+      expect(responseCode).toBe(200);
+      const blueTopItem = products.find(
+        (product) => product.name === blueTop.name,
+      );
+      expect(blueTopItem, `${blueTop.name} is in the catalogue`).toBeDefined();
+      expect(blueTopItem?.price).toBe(blueTop.price);
     },
   );
 
@@ -33,31 +27,23 @@ test.describe("Products API", () => {
     "GET brandsList includes the Polo brand",
     { tag: ["@Functional", "@Regression"] },
     async ({ request }) => {
-      const response = await request.get("/api/brandsList");
-      expect(response.status()).toBe(200);
+      const api = new ApiClient(request);
+      const { responseCode, brands } = await api.getBrandsList();
 
-      const body = (await readJson(response)) as {
-        responseCode: number;
-        brands: Array<{ brand: string }>;
-      };
-      expect(body.responseCode).toBe(200);
-      expect(body.brands.map((b) => b.brand)).toContain("Polo");
+      expect(responseCode).toBe(200);
+      expect(brands.map((item) => item.brand)).toContain(brandNames.polo);
     },
   );
 
   test(
-    "POST productsList is rejected with method not supported",
+    "POST productsList is rejected as an unsupported method",
     { tag: ["@Functional", "@Negative", "@Regression"] },
     async ({ request }) => {
-      const response = await request.post("/api/productsList");
-      expect(response.status()).toBe(200);
+      const api = new ApiClient(request);
+      const result = await api.postToProductsList();
 
-      const body = (await readJson(response)) as {
-        responseCode: number;
-        message: string;
-      };
-      expect(body.responseCode).toBe(405);
-      expect(body.message).toMatch(/not supported/i);
+      expect(result.responseCode).toBe(unsupportedMethodResponseCode);
+      expect(result.message).toMatch(/not supported/i);
     },
   );
 });
