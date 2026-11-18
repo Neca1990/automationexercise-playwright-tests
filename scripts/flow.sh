@@ -58,8 +58,8 @@ open_pr_for_branch() {
 
 do_review() {
   local pr="$1"
-  claude -p "Use the review-tests skill to review pull request #$pr and post comments with gh. End with one comment that starts with 'Review findings: <number>'. Do not edit files." \
-    --allowedTools "Read" "Bash(git diff:*)" "Bash(git log:*)" "Bash(gh pr view:*)" "Bash(gh pr diff:*)" "Bash(gh pr comment:*)" "Bash(gh api:*)"
+  claude -p "Read and follow .agents/skills/review-tests/SKILL.md to review pull request #$pr and post comments with gh. End with one comment that starts with 'Review findings: <number>'. Do not edit files." \
+    --allowedTools "Read" "Bash(git diff:*)" "Bash(git log:*)" "Bash(gh pr view:*)" "Bash(gh pr diff:*)" "Bash(gh pr comment:*)"
 }
 
 # Checks out the PR's head branch so fixes and the push go to the right place.
@@ -77,9 +77,9 @@ do_fix() {
   local pr="$1" before after
   ensure_pr_branch "$pr"
   before="$(git rev-parse HEAD)"
-  claude -p "Use the fix-review skill for pull request #$pr. Fix the valid comments, reply to each one with gh, and commit the fixes. Do not push. Do not merge." \
+  claude -p "Read and follow .agents/skills/fix-review/SKILL.md for pull request #$pr. Fix the valid comments, reply to each one with gh, and commit the fixes. Do not push. Do not merge." \
     --permission-mode acceptEdits \
-    --allowedTools "Read" "Edit" "Write" "Bash(git:*)" "Bash(npm:*)" "Bash(npx:*)" "Bash(gh pr view:*)" "Bash(gh pr diff:*)" "Bash(gh pr comment:*)" "Bash(gh api:*)"
+    --allowedTools "Read" "Edit" "Write" "Bash(git add:*)" "Bash(git commit:*)" "Bash(git status:*)" "Bash(git diff:*)" "Bash(git log:*)" "Bash(git rev-parse:*)" "Bash(npm:*)" "Bash(npx:*)" "Bash(gh pr view:*)" "Bash(gh pr diff:*)" "Bash(gh pr comment:*)" "Bash(gh api repos/*/pulls/*/comments)"
   gate
   after="$(git rev-parse HEAD)"
   if [ "$before" = "$after" ]; then
