@@ -1,48 +1,183 @@
 #!/usr/bin/env bash
 # Runs one stage of the test automation flow. See docs/workflow.md.
 #
-#   scripts/flow.sh plan                 interactive planning session (Claude Code, you approve the plan)
-#   scripts/flow.sh implement            implement the approved plan on a branch
-#   scripts/flow.sh gate                 tests + privacy guard; required before any push
-#   scripts/flow.sh review <PR number>   separate, non-interactive review session that posts comments
-#   scripts/flow.sh fix <PR number>      read review comments, fix, re-run gate, push
+#   scripts/flow.sh plan                     interactive planning session; you approve the plan
+#   scripts/flow.sh implement                implement the approved plan on a feature branch (no push)
+#   scripts/flow.sh gate                     typecheck, format, privacy guard, tests; required before any push
+#   scripts/flow.sh pr [title]               push the current branch and open a PR into main (reuses an open PR)
+#   scripts/flow.sh review <PR>              one non-interactive review session; posts comments, changes no code
+#   scripts/flow.sh fix <PR>                 fix the review comments, run the gate, push
+#   scripts/flow.sh loop <PR> [max-rounds]   review, then fix, until the review reports no findings (default 5 rounds)
+#   scripts/flow.sh merge <PR> [--yes]       local gate (live tests), CI checks, zero findings; then merge (asks first unless --yes)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 stage="${1:-}"
-pr="${2:-}"
+arg2="${2:-}"
+arg3="${3:-}"
 
 gate() {
+  npm run check
   npm test
-  npm run guard
+}
+
+current_branch() {
+  git branch --show-current
+}
+
+require_pr_number() {
+  if [ -z "$1" ] || ! [[ "$1" =~ ^[0-9]+$ ]]; then
+    echo "usage: $0 $stage <PR number>"
+    exit 2
+  fi
+}
+
+# Returns the number of findings from the newest review marker on the PR.
+# The review writes a marker line: <!-- review-findings: <head-sha> <count> -->
+# The marker is accepted only if its SHA is the PR's current head, so a review of older code never counts.
+latest_findings() {
+  local pr="$1" head bodies marker sha count
+  head="$(gh pr view "$pr" --json headRefOid --jq '.headRefOid')"
+  bodies="$(gh pr view "$pr" --json comments --jq '[.comments[].body | select(contains("<!-- review-findings:"))] | join("\n")')"
+  marker="$(echo "$bodies" | grep -oE '<!-- review-findings: [0-9a-f]{40} [0-9]+ -->' | tail -n 1 || true)"
+  if [ -z "$marker" ]; then
+    echo "FINDINGS: no review marker on PR #$pr" >&2
+    return 1
+  fi
+  sha="$(echo "$marker" | awk '{print $3}')"
+  count="$(echo "$marker" | awk '{print $4}')"
+  if [ "$sha" != "$head" ]; then
+    echo "FINDINGS: the latest review is for ${sha:0:7}, but the PR head is ${head:0:7}. Run the review again." >&2
+    return 1
+  fi
+  echo "$count"
+}
+
+open_pr_for_branch() {
+  gh pr list --head "$(current_branch)" --state open --json number --jq '.[0].number // empty'
+}
+
+do_review() {
+  local pr="$1"
+  claude -p "Read and follow .agents/skills/review-tests/SKILL.md to review pull request #$pr and post comments with gh. End with one summary comment that starts with 'Review findings: <number>' and ends with the marker line from the skill. Do not edit files." \
+    --allowedTools "Read" "Bash(git diff:*)" "Bash(git log:*)" "Bash(gh pr view:*)" "Bash(gh pr diff:*)" "Bash(gh pr comment:*)"
+}
+
+# Checks out the PR's head branch so fixes and the push go to the right place.
+ensure_pr_branch() {
+  local pr="$1" head
+  head="$(gh pr view "$pr" --json headRefName --jq '.headRefName')"
+  if [ "$(current_branch)" != "$head" ]; then
+    gh pr checkout "$pr"
+  fi
+}
+
+# Non-interactive fix session. It may edit files and commit, and nothing else.
+# If it commits nothing, the script stops instead of pushing an unchanged branch.
+do_fix() {
+  local pr="$1" before after
+  ensure_pr_branch "$pr"
+  before="$(git rev-parse HEAD)"
+  claude -p "Read and follow .agents/skills/fix-review/SKILL.md for pull request #$pr. Fix the valid comments, reply to each one with gh, and commit the fixes. Do not push. Do not merge." \
+    --permission-mode acceptEdits \
+    --allowedTools "Read" "Edit" "Write" "Bash(git add:*)" "Bash(git commit:*)" "Bash(git status:*)" "Bash(git diff:*)" "Bash(git log:*)" "Bash(git rev-parse:*)" "Bash(npm:*)" "Bash(npx:*)" "Bash(gh pr view:*)" "Bash(gh pr diff:*)" "Bash(gh pr comment:*)" "Bash(gh api repos/*/pulls/*/comments)"
+  gate
+  after="$(git rev-parse HEAD)"
+  if [ "$before" = "$after" ]; then
+    echo "FIX: the fix session made no commit. Stopping without a push."
+    exit 1
+  fi
+  git push
 }
 
 case "$stage" in
   plan)
     claude "Use the plan-tests skill. Ask me about anything unclear, then write plans/<topic>.md and wait for my approval."
     ;;
+
   implement)
     claude "Use the implement-tests skill on the approved plan in plans/. Stop after committing; do not push."
     ;;
+
   gate)
     gate
     echo "GATE: passed."
     ;;
-  review)
-    [ -n "$pr" ] || { echo "usage: $0 review <PR number>"; exit 2; }
-    # Separate session: read-only tools plus gh comment posting. It does not edit files or push.
-    claude -p "Use the review-tests skill to review pull request #$pr and post comments with gh. Do not edit files." \
-      --allowedTools "Read" "Bash(git diff:*)" "Bash(git log:*)" "Bash(gh pr view:*)" "Bash(gh pr diff:*)" "Bash(gh pr comment:*)" "Bash(gh api:*)"
-    ;;
-  fix)
-    [ -n "$pr" ] || { echo "usage: $0 fix <PR number>"; exit 2; }
-    claude "Use the fix-review skill for pull request #$pr. Fix valid comments, then run scripts/flow.sh gate before pushing."
+
+  pr)
+    branch="$(current_branch)"
+    if [ -z "$branch" ] || [ "$branch" = "main" ]; then
+      echo "PR: switch to a feature branch first (current: ${branch:-detached})."
+      exit 1
+    fi
     gate
-    git push
+    git push -u origin HEAD
+    existing="$(open_pr_for_branch)"
+    if [ -n "$existing" ]; then
+      echo "PR: already open as #$existing"
+    else
+      title="${arg2:-$(git log -1 --format=%s)}"
+      gh pr create --base main --head "$branch" --title "$title" \
+        --body "Test automation change. Gate (typecheck, format, privacy guard, tests) passed locally before push."
+      echo "PR: opened for $branch"
+    fi
+    gh pr view --json number,url --jq '"PR #\(.number): \(.url)"'
     ;;
+
+  review)
+    require_pr_number "$arg2"
+    do_review "$arg2"
+    ;;
+
+  fix)
+    require_pr_number "$arg2"
+    do_fix "$arg2"
+    echo "FIX: pushed."
+    ;;
+
+  loop)
+    require_pr_number "$arg2"
+    max_rounds="${arg3:-5}"
+    for round in $(seq 1 "$max_rounds"); do
+      echo "LOOP: round $round of $max_rounds, review"
+      do_review "$arg2"
+      findings="$(latest_findings "$arg2")"
+      echo "LOOP: findings = $findings"
+      if [ "$findings" = "0" ]; then
+        echo "LOOP: no findings left. Run: scripts/flow.sh merge $arg2"
+        exit 0
+      fi
+      echo "LOOP: round $round, fix"
+      do_fix "$arg2"
+    done
+    echo "LOOP: stopped after $max_rounds rounds with findings still open. Check the PR by hand."
+    exit 1
+    ;;
+
+  merge)
+    require_pr_number "$arg2"
+    findings="$(latest_findings "$arg2")"
+    if [ "$findings" != "0" ]; then
+      echo "MERGE: review still reports $findings finding(s) on PR #$arg2. Run the loop or fix them first."
+      exit 1
+    fi
+    echo "MERGE: running the live gate locally (the site blocks CI runners)"
+    gate
+    echo "MERGE: waiting for CI checks on PR #$arg2"
+    gh pr checks "$arg2" --watch
+    if [ "$arg3" != "--yes" ]; then
+      read -r -p "Merge PR #$arg2 into main? Type yes to confirm: " answer
+      [ "$answer" = "yes" ] || { echo "MERGE: cancelled."; exit 1; }
+    fi
+    gh pr merge "$arg2" --merge --delete-branch
+    git checkout -q main
+    git pull -q origin main
+    echo "MERGE: done. main is up to date."
+    ;;
+
   *)
-    echo "usage: $0 {plan|implement|gate|review <PR>|fix <PR>}"
+    echo "usage: $0 {plan|implement|gate|pr [title]|review <PR>|fix <PR>|loop <PR> [rounds]|merge <PR> [--yes]}"
     exit 2
     ;;
 esac
