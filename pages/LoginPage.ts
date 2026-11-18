@@ -29,7 +29,11 @@ export class LoginPage extends BasePage {
     await this.loginButton.click();
   }
 
-  async expectLoginError(): Promise<void> {
-    await expect(this.page.getByText(/Your email or password is incorrect!/i)).toBeVisible();
+  /** The error is shown and the user stays on the login page. */
+  async expectLoginRejected(): Promise<void> {
+    await expect(
+      this.page.getByText(/Your email or password is incorrect!/i),
+    ).toBeVisible();
+    await expect(this.page).toHaveURL(/\/login$/);
   }
 }

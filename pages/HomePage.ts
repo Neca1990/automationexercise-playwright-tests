@@ -8,16 +8,16 @@ export class HomePage extends BasePage {
 
   async expectLoaded(): Promise<void> {
     await expect(this.page).toHaveTitle(/Automation Exercise/i);
-    await expect(this.navLink(/Products/i)).toBeVisible();
-    await expect(this.navLink(/Cart/i)).toBeVisible();
-    await expect(this.navLink(/Signup \/ Login/i)).toBeVisible();
+    await expect(this.navLink("Products")).toHaveCount(1);
+    await expect(this.navLink("Cart")).toHaveCount(1);
+    await expect(this.navLink("Signup / Login")).toHaveCount(1);
   }
 
   async goToProducts(): Promise<void> {
-    await this.navLink(/Products/i).click();
+    await this.navLink("Products").click();
   }
 
   async goToLogin(): Promise<void> {
-    await this.navLink(/Signup \/ Login/i).click();
+    await this.navLink("Signup / Login").click();
   }
 }

@@ -8,11 +8,17 @@
     "test:headed": "playwright test --headed",
     "report": "playwright show-report",
     "guard": "bash scripts/check-private.sh",
-    "flow": "bash scripts/flow.sh"
+    "flow": "bash scripts/flow.sh",
+    "test:smoke": "playwright test --grep @smoke",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run typecheck && npm run format:check && npm run guard"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0",
     "@types/node": "^20.0.0",
+    "prettier": "^3.10.1",
     "typescript": "^5.6.0"
   }
 }

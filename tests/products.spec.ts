@@ -1,13 +1,18 @@
 import { test } from "@playwright/test";
 import { ProductsPage } from "../pages/ProductsPage";
+import { blueTop, searchTerms } from "./data/testData";
 
 test.describe("Products page", () => {
-  test("lists products and allows a search", async ({ page }) => {
-    const products = new ProductsPage(page);
-    await products.open();
-    await products.expectLoaded();
+  test(
+    "lists products and finds one by search",
+    { tag: "@smoke" },
+    async ({ page }) => {
+      const products = new ProductsPage(page);
+      await products.open();
+      await products.expectLoaded();
 
-    await products.search("top");
-    await products.expectSearchResults();
-  });
+      await products.search(searchTerms.blueTop);
+      await products.expectSearchResultsFor(blueTop.name);
+    },
+  );
 });

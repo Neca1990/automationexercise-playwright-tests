@@ -10,6 +10,7 @@ Before you write or change code, read the file in `docs/` that matches the task:
 - `docs/selectors.md`: how to pick locators on the site.
 - `docs/workflow.md`: plan, implement, review, fix, and the test gate before push.
 - `docs/page-objects.md`: Page Object Model rules. Every new spec uses page objects in `pages/`.
+- `docs/quality-rules.md`: mandatory quality rules: test data in `tests/data/`, unique locators, strong assertions, tags, and the pre-push checks.
 
 ## Privacy rules (mandatory)
 
@@ -35,4 +36,4 @@ Before you write or change code, read the file in `docs/` that matches the task:
 1. `npm test` passes locally.
 2. `npm run guard` passes.
 3. CI (`.github/workflows/tests.yml`) passes on the branch.
-Do not merge if any of these fail.
+   Do not merge if any of these fail.

@@ -65,6 +65,9 @@ if [ -f "$BLOCKLIST" ]; then
       report "blocked term in unpushed commit metadata"
     fi
   done < "$BLOCKLIST"
+elif [ "${CI:-}" = "true" ]; then
+  # CI runners do not have the local blocklist. The other checks still run there.
+  echo "GUARD: blocklist not available in CI; personal-term check skipped here, run it locally before push."
 else
   echo "GUARD: blocklist not found at $BLOCKLIST (create it; see scripts/README.md)"
   fail=1

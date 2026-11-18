@@ -13,6 +13,7 @@ description: Reviews a pull request of Playwright tests for automationexercise.c
    - privacy rules: no personal data, no secrets, no project or client names;
    - conventions in `docs/testing-conventions.md`, `docs/page-objects.md`, and `docs/selectors.md`;
    - POM: selectors only in `pages/`, no selectors in `tests/`;
+   - `docs/quality-rules.md`: no hard-coded data in specs, no `.first()`/`.nth()`, every test tagged, assertions check business results;
    - test quality: assertions that really check behavior, no fixed waits, no order dependence;
    - locators that are fragile or that match more than one element.
 4. Post each finding as a comment on the pull request with `gh pr comment <number> --body "<text>"`. Keep each comment short and state the file and line.

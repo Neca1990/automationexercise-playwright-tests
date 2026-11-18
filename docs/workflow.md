@@ -31,5 +31,5 @@ The flow has five stages. Each stage is a Claude Code session with its own skill
 
 ## 5. Gate before push and merge
 
-- `npm test` and `npm run guard` must pass locally before every push.
+- `npm run check` (typecheck, format check, privacy guard) and `npm test` must pass locally before every push.
 - CI must pass before merge. The merge does not happen while any check fails.
