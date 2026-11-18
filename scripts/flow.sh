@@ -8,7 +8,7 @@
 #   scripts/flow.sh review <PR>              one non-interactive review session; posts comments, changes no code
 #   scripts/flow.sh fix <PR>                 fix the review comments, run the gate, push
 #   scripts/flow.sh loop <PR> [max-rounds]   review, then fix, until the review reports no findings (default 5 rounds)
-#   scripts/flow.sh merge <PR> [--yes]       merge into main after CI passes and no findings remain (asks first unless --yes)
+#   scripts/flow.sh merge <PR> [--yes]       local gate (live tests), CI checks, zero findings; then merge (asks first unless --yes)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -162,7 +162,9 @@ case "$stage" in
       echo "MERGE: review still reports $findings finding(s) on PR #$arg2. Run the loop or fix them first."
       exit 1
     fi
-    echo "MERGE: waiting for CI on PR #$arg2"
+    echo "MERGE: running the live gate locally (the site blocks CI runners)"
+    gate
+    echo "MERGE: waiting for CI checks on PR #$arg2"
     gh pr checks "$arg2" --watch
     if [ "$arg3" != "--yes" ]; then
       read -r -p "Merge PR #$arg2 into main? Type yes to confirm: " answer

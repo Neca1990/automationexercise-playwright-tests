@@ -35,5 +35,5 @@ Before you write or change code, read the file in `docs/` that matches the task:
 
 1. `npm test` passes locally.
 2. `npm run guard` passes.
-3. CI (`.github/workflows/tests.yml`) passes on the branch.
+3. CI checks (`.github/workflows/tests.yml`) pass on the branch. Live browser tests run locally, because the site blocks CI runners.
    Do not merge if any of these fail.

@@ -32,7 +32,7 @@ The flow has five stages. Each stage is a Claude Code session with its own skill
 ## 5. Gate before push and merge
 
 - `npm run check` (typecheck, format check, privacy guard) and `npm test` must pass locally before every push.
-- CI must pass before merge. The merge does not happen while any check fails.
+- CI runs typecheck, format, and the privacy guard. The live browser tests run locally, because the site blocks GitHub-hosted runners. `merge` runs them before it merges.
 
 ## Commands
 
@@ -43,7 +43,7 @@ The flow has five stages. Each stage is a Claude Code session with its own skill
 - `npm run flow -- review <PR>`: one review session that posts comments.
 - `npm run flow -- fix <PR>`: fix comments, gate, push.
 - `npm run flow -- loop <PR>`: review and fix until the review reports `Review findings: 0` (max 5 rounds).
-- `npm run flow -- merge <PR>`: merge into `main` when findings are 0 and CI passes. Asks for `yes` first.
+- `npm run flow -- merge <PR>`: runs the live gate locally, waits for CI checks, and merges into `main` when findings are 0. Asks for `yes` first.
 
 ## Branches
 
