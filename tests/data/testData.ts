@@ -34,6 +34,9 @@ export const blueTopDetailPath = "/product_details/1";
 
 export const purchaseQuantity = 3;
 
+/** HTTP status that the API returns for a successful GET. */
+export const okResponseCode = 200;
+
 /** Method that the products endpoint does not accept. */
 export const unsupportedMethodResponseCode = 405;
 

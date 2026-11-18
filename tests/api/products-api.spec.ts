@@ -3,6 +3,7 @@ import { ApiClient } from "./ApiClient";
 import {
   blueTop,
   brandPolo,
+  okResponseCode,
   unsupportedMethodMessage,
   unsupportedMethodResponseCode,
 } from "../data/testData";
@@ -15,7 +16,7 @@ test.describe("Products API", () => {
       const api = new ApiClient(request);
       const { responseCode, products } = await api.getProductsList();
 
-      expect(responseCode).toBe(200);
+      expect(responseCode).toBe(okResponseCode);
       const blueTopItem = products.find(
         (product) => product.name === blueTop.name,
       );
@@ -31,7 +32,7 @@ test.describe("Products API", () => {
       const api = new ApiClient(request);
       const { responseCode, brands } = await api.getBrandsList();
 
-      expect(responseCode).toBe(200);
+      expect(responseCode).toBe(okResponseCode);
       expect(brands.map((item) => item.brand)).toContain(brandPolo.name);
     },
   );

@@ -33,7 +33,7 @@ The flow has five stages. Each stage is a Claude Code session with its own skill
 
 - `npm run check` (typecheck, format check, privacy guard) and `npm test` must pass locally before every push.
 - CI runs typecheck, format, the privacy guard, and the API tests (`npm run test:api`). The browser UI tests run locally (`npm run test:ui`), because the site blocks GitHub-hosted runner IPs. `merge` runs the full local gate before it merges.
-- When the site UI is down, the global setup sets `UI_DOWN=1`. UI tests are skipped with a reason, API tests still run, and the run does not fail because of the outage. To check this path: `SIMULATE_SITE_DOWN=1 npm test`.
+- When the site UI is down, the global setup sets `UI_DOWN=1`. UI tests are skipped with a reason and API tests still run. The run does not fail because of the outage alone, but API tests can fail when the whole host is unreachable. To check this path: `SIMULATE_SITE_DOWN=1 npm test`.
 
 ## Commands
 
