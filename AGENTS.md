@@ -9,6 +9,7 @@ Before you write or change code, read the file in `docs/` that matches the task:
 - `docs/testing-conventions.md`: structure, naming, assertions, waits.
 - `docs/selectors.md`: how to pick locators on the site.
 - `docs/workflow.md`: plan, implement, review, fix, and the test gate before push.
+- `docs/page-objects.md`: Page Object Model rules. Every new spec uses page objects in `pages/`.
 
 ## Privacy rules (mandatory)
 

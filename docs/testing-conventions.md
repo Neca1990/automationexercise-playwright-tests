@@ -3,6 +3,7 @@
 ## Structure
 
 - `tests/<feature>.spec.ts`: one file per page or feature (home, products, cart, login, contact).
+- `pages/`: page objects (POM). Selectors and page actions live here. See `docs/page-objects.md`.
 - `tests/helpers/`: shared helpers, added only when two or more specs need the same code.
 - `playwright.config.ts`: base URL and reporters. Do not hard-code the URL in specs.
 

@@ -1,12 +1,10 @@
-import { test, expect } from "@playwright/test";
+import { test } from "@playwright/test";
+import { HomePage } from "../pages/HomePage";
 
 test.describe("Home page", () => {
   test("loads and shows the main navigation", async ({ page }) => {
-    await page.goto("/");
-
-    await expect(page).toHaveTitle(/Automation Exercise/i);
-    await expect(page.getByRole("link", { name: /Products/i }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: /Cart/i }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: /Signup \/ Login/i })).toBeVisible();
+    const home = new HomePage(page);
+    await home.open();
+    await home.expectLoaded();
   });
 });

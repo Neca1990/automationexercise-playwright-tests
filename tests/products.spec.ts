@@ -1,16 +1,13 @@
-import { test, expect } from "@playwright/test";
+import { test } from "@playwright/test";
+import { ProductsPage } from "../pages/ProductsPage";
 
 test.describe("Products page", () => {
   test("lists products and allows a search", async ({ page }) => {
-    await page.goto("/products");
+    const products = new ProductsPage(page);
+    await products.open();
+    await products.expectLoaded();
 
-    await expect(page.getByRole("heading", { name: /All Products/i })).toBeVisible();
-    await expect(page.locator(".features_items .product-image-wrapper").first()).toBeVisible();
-
-    await page.locator("#search_product").fill("top");
-    await page.locator("#submit_search").click();
-
-    await expect(page.getByRole("heading", { name: /Searched Products/i })).toBeVisible();
-    await expect(page.locator(".features_items .product-image-wrapper").first()).toBeVisible();
+    await products.search("top");
+    await products.expectSearchResults();
   });
 });

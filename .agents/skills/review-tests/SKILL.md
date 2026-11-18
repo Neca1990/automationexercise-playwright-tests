@@ -11,7 +11,8 @@ description: Reviews a pull request of Playwright tests for automationexercise.c
 2. Read the diff of the pull request against `main` with `git diff main...HEAD` and `gh pr diff`.
 3. Check:
    - privacy rules: no personal data, no secrets, no project or client names;
-   - conventions in `docs/testing-conventions.md` and `docs/selectors.md`;
+   - conventions in `docs/testing-conventions.md`, `docs/page-objects.md`, and `docs/selectors.md`;
+   - POM: selectors only in `pages/`, no selectors in `tests/`;
    - test quality: assertions that really check behavior, no fixed waits, no order dependence;
    - locators that are fragile or that match more than one element.
 4. Post each finding as a comment on the pull request with `gh pr comment <number> --body "<text>"`. Keep each comment short and state the file and line.
