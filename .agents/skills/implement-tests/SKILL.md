@@ -1,0 +1,21 @@
+---
+name: implement-tests
+description: Implements an approved test plan as Playwright specs for automationexercise.com, runs the suite, and fixes failures it caused. Use after a plan file in plans/ has been approved.
+---
+
+# Implement tests
+
+## Steps
+
+1. Read `AGENTS.md`, `docs/testing-conventions.md`, `docs/selectors.md`, and the approved plan in `plans/`.
+2. Create a branch named `tests/<topic>`.
+3. For each scenario, write or update a spec in `tests/`. Check each locator on the live page first.
+4. Run `npm test`. Fix failures that come from your code. If a failure comes from the site behaving differently than the plan, stop and report it to the user.
+5. Run `npm run guard`. Fix every finding.
+6. Commit with a short message. Do not push until the user asks, or until `scripts/flow.sh` says the gate passed.
+
+## Rules
+
+- Do not weaken assertions to make tests pass.
+- Do not add `waitForTimeout`.
+- Keep commit messages free of personal data and project names.
