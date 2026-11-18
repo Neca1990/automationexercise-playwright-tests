@@ -44,7 +44,7 @@ These rules apply to every spec, page object, and data file. Review checks them,
 
 16. `npm run check` passes: typecheck, format check, and privacy guard.
 17. `npm test` passes. A test that fails once and then passes is flaky: report it and fix it.
-18. CI checks (typecheck, format, guard) pass on the pull request, and the live tests pass locally (`merge` runs them).
+18. CI checks (typecheck, format, guard, API tests) pass on the pull request, and the browser UI tests pass locally (`merge` runs them).
 
 ## Steps and navigation
 
