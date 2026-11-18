@@ -1,49 +1,40 @@
-import type { FullConfig } from "@playwright/test";
-
 /**
- * Runs once before the suite. Checks that the site returns its normal home page.
+ * Runs once before the suite. Checks whether the site's HTML pages are available.
  *
- * automationexercise.com sometimes answers with a protection page ("One moment, please...")
- * instead of the site. Tests cannot pass on that page, so the run stops here with one clear message
- * instead of failing many tests one by one. The check does not try to get around the protection.
- *
- * The URL comes from playwright.config.ts, so the check and the tests always use the same host.
+ * When the site answers with an error or a protection page ("One moment, please...", HTTP 502/520),
+ * the UI tests cannot run. The run does not stop: UI tests are skipped (see tests/fixtures.ts) and
+ * the API tests still run. The check does not try to get around any protection.
  */
-const CHECK_TIMEOUT_MS = 15_000;
+export default async function globalSetup(): Promise<void> {
+  const baseURL = "https://automationexercise.com/";
+  let uiAvailable = false;
+  let reason = "";
 
-export default async function globalSetup(config: FullConfig): Promise<void> {
-  const baseURL = config.projects[0]?.use.baseURL;
-  if (!baseURL) {
-    throw new Error(
-      "Site check failed: use.baseURL is not set in playwright.config.ts.",
-    );
+  if (process.env.SIMULATE_SITE_DOWN === "1") {
+    // Lets the skip path be checked on demand: SIMULATE_SITE_DOWN=1 npm test
+    process.env.UI_DOWN = "1";
+    console.warn("Site check: simulated outage. UI tests will be skipped.");
+    return;
   }
 
-  let response: Response;
-  let body: string;
   try {
-    response = await fetch(baseURL, {
+    const response = await fetch(baseURL, {
       redirect: "follow",
-      signal: AbortSignal.timeout(CHECK_TIMEOUT_MS),
+      signal: AbortSignal.timeout(20_000),
     });
-    body = await response.text();
+    const body = await response.text();
+    uiAvailable = response.ok && /Automation Exercise/i.test(body);
+    if (!uiAvailable) {
+      reason = `HTTP ${response.status}, no expected home page`;
+    }
   } catch (error) {
-    const timedOut = error instanceof Error && error.name === "TimeoutError";
-    const detail = timedOut
-      ? `did not answer within ${CHECK_TIMEOUT_MS / 1000} seconds`
-      : "could not be reached";
-    throw new Error(
-      `Site check failed: ${baseURL} ${detail}. No tests were run. Try again later.`,
-      {
-        cause: error,
-      },
-    );
+    reason = `request failed: ${(error as Error).message}`;
   }
 
-  if (!response.ok || !/Automation Exercise/i.test(body)) {
-    throw new Error(
-      `Site check failed: ${baseURL} returned HTTP ${response.status} without the expected home page ` +
-        `(protection or maintenance page). No tests were run. Try again later.`,
+  process.env.UI_DOWN = uiAvailable ? "0" : "1";
+  if (!uiAvailable) {
+    console.warn(
+      `Site check: UI tests will be skipped (${reason}). API tests still run.`,
     );
   }
 }

@@ -33,3 +33,9 @@ jobs:
 
       - name: Run privacy guard
         run: npm run guard
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: API tests (run even when the site UI is down)
+        run: npm run test:api

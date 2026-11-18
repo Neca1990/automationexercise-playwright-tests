@@ -40,6 +40,12 @@ These rules apply to every spec, page object, and data file. Review checks them,
       Typical sets: `@Smoke @Regression`, `@Functional @Regression`, `@E2E @Regression`, `@Functional @Negative @Regression`.
 15. One page class per file in `pages/`, extending `BasePage`.
 
+## Site outages
+
+22. API tests (`tests/api/`) do not depend on the browser UI. They run in CI and when the UI is down.
+23. A UI test never runs against a site that is down. Skips come from `tests/fixtures.ts` when `UI_DOWN=1`, with a reason. Do not add `test.skip` in individual specs for outages.
+24. Tests never try to get around a site's protection pages. If the site blocks a runner, use a local run, not a workaround.
+
 ## Steps and navigation
 
 19. Every page action and verification is wrapped in `test.step` with a readable name. The name says what the user does, for example `Add "Blue Top" to the cart`. It does not include secrets.
