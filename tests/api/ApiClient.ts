@@ -87,6 +87,7 @@ export class ApiClient {
       const body = await this.readBody(
         await this.request.post(endpoints.productsList),
       );
+      expect(typeof body.responseCode).toBe("number");
       expect(typeof body.message).toBe("string");
       return {
         responseCode: body.responseCode as number,
