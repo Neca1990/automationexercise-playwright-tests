@@ -33,20 +33,22 @@ require_pr_number() {
   fi
 }
 
-# Returns the number of findings from the newest "Review findings:" comment posted AFTER the PR's
-# latest commit. Older summaries do not count, so a merge never relies on a review of older code.
+# Returns the number of findings from the newest review marker on the PR.
+# The review writes a marker line: <!-- review-findings: <head-sha> <count> -->
+# The marker is accepted only if its SHA is the PR's current head, so a review of older code never counts.
 latest_findings() {
-  local pr="$1" last_commit body count
-  last_commit="$(gh pr view "$pr" --json commits --jq '.commits[-1].committedDate')"
-  body="$(gh pr view "$pr" --json comments --jq "[.comments[] | select(.createdAt > \"$last_commit\") | .body | select(startswith(\"Review findings:\"))] | last // \"\"")"
-  if [ -z "$body" ]; then
-    echo "FINDINGS: no review summary posted after the latest commit on PR #$pr" >&2
+  local pr="$1" head bodies marker sha count
+  head="$(gh pr view "$pr" --json headRefOid --jq '.headRefOid')"
+  bodies="$(gh pr view "$pr" --json comments --jq '[.comments[].body | select(contains("<!-- review-findings:"))] | join("\n")')"
+  marker="$(echo "$bodies" | grep -oE '<!-- review-findings: [0-9a-f]{40} [0-9]+ -->' | tail -n 1 || true)"
+  if [ -z "$marker" ]; then
+    echo "FINDINGS: no review marker on PR #$pr" >&2
     return 1
   fi
-  # Only the first line carries the count; the rest of the summary is free text.
-  count="$(echo "$body" | head -n 1 | sed -E 's/^Review findings: *([0-9]+).*/\1/')"
-  if ! [[ "$count" =~ ^[0-9]+$ ]]; then
-    echo "FINDINGS: summary is not a number: $body" >&2
+  sha="$(echo "$marker" | awk '{print $3}')"
+  count="$(echo "$marker" | awk '{print $4}')"
+  if [ "$sha" != "$head" ]; then
+    echo "FINDINGS: the latest review is for ${sha:0:7}, but the PR head is ${head:0:7}. Run the review again." >&2
     return 1
   fi
   echo "$count"
@@ -58,7 +60,7 @@ open_pr_for_branch() {
 
 do_review() {
   local pr="$1"
-  claude -p "Read and follow .agents/skills/review-tests/SKILL.md to review pull request #$pr and post comments with gh. End with one comment that starts with 'Review findings: <number>'. Do not edit files." \
+  claude -p "Read and follow .agents/skills/review-tests/SKILL.md to review pull request #$pr and post comments with gh. End with one summary comment that starts with 'Review findings: <number>' and ends with the marker line from the skill. Do not edit files." \
     --allowedTools "Read" "Bash(git diff:*)" "Bash(git log:*)" "Bash(gh pr view:*)" "Bash(gh pr diff:*)" "Bash(gh pr comment:*)"
 }
 
