@@ -31,11 +31,23 @@ These rules apply to every spec, page object, and data file. Review checks them,
 
 - Specs import `test` and `expect` from `tests/fixtures.ts`, never from `@playwright/test` directly. The fixture blocks third-party ad requests that cover buttons.
 
-14. Every spec has a tag: `@smoke` for the quick core checks, `@regression` for the rest.
+14. Every test has tags from this fixed vocabulary. Do not invent new tags.
+    - `@Smoke`: core checks that must pass before anything else.
+    - `@Functional`: one feature's behavior (text, navigation, a single action).
+    - `@E2E`: a flow across several pages.
+    - `@Negative`: invalid input or error handling. Add it next to the kind tag.
+    - `@Regression`: every test has it.
+      Typical sets: `@Smoke @Regression`, `@Functional @Regression`, `@E2E @Regression`, `@Functional @Negative @Regression`.
 15. One page class per file in `pages/`, extending `BasePage`.
+
+## Steps and navigation
+
+19. Every page action and verification is wrapped in `test.step` with a readable name. The name says what the user does, for example `Add "Blue Top" to the cart`. It does not include secrets.
+20. Tests navigate through page objects (`open`, `goBack`, `openFromSidebar`). A spec does not call `page.goto` itself.
+21. Each feature branch covers one topic. Work is never committed to `main` directly.
 
 ## Before every push
 
 16. `npm run check` passes: typecheck, format check, and privacy guard.
-17. `npm test` passes.
+17. `npm test` passes. A test that fails once and then passes is flaky: report it and fix it.
 18. CI passes on the pull request before merge.

@@ -1,4 +1,4 @@
-import { expect, type Locator } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 import { BasePage } from "./BasePage";
 
 export class LoginPage extends BasePage {
@@ -7,8 +7,10 @@ export class LoginPage extends BasePage {
   }
 
   async expectLoaded(): Promise<void> {
-    await expect(this.loginEmail).toBeVisible();
-    await expect(this.loginPassword).toBeVisible();
+    await test.step("Verify login form is loaded", async () => {
+      await expect(this.loginEmail).toBeVisible();
+      await expect(this.loginPassword).toBeVisible();
+    });
   }
 
   get loginEmail(): Locator {
@@ -24,16 +26,20 @@ export class LoginPage extends BasePage {
   }
 
   async logIn(email: string, password: string): Promise<void> {
-    await this.loginEmail.fill(email);
-    await this.loginPassword.fill(password);
-    await this.loginButton.click();
+    await test.step("Log in with the provided credentials", async () => {
+      await this.loginEmail.fill(email);
+      await this.loginPassword.fill(password);
+      await this.loginButton.click();
+    });
   }
 
   /** The error is shown and the user stays on the login page. */
   async expectLoginRejected(): Promise<void> {
-    await expect(
-      this.page.getByText(/Your email or password is incorrect!/i),
-    ).toBeVisible();
-    await expect(this.page).toHaveURL(/\/login$/);
+    await test.step("Verify login is rejected and the user stays on the login page", async () => {
+      await expect(
+        this.page.getByText(/Your email or password is incorrect!/i),
+      ).toBeVisible();
+      await expect(this.page).toHaveURL(/\/login$/);
+    });
   }
 }

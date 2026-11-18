@@ -7,7 +7,7 @@ import { blueTop, blueTopDetailPath, purchaseQuantity } from "./data/testData";
 test.describe("Product details", () => {
   test(
     "opening a product shows its name and price",
-    { tag: "@smoke" },
+    { tag: ["@Smoke", "@Regression"] },
     async ({ page }) => {
       const detail = new ProductDetailPage(page);
       await detail.open(blueTopDetailPath);
@@ -17,7 +17,7 @@ test.describe("Product details", () => {
 
   test(
     "a chosen quantity is kept in the cart",
-    { tag: "@regression" },
+    { tag: ["@E2E", "@Regression"] },
     async ({ page }) => {
       const detail = new ProductDetailPage(page);
       const cart = new CartPage(page);
@@ -33,13 +33,15 @@ test.describe("Product details", () => {
 
   test(
     "browser back returns from a product to the product list",
-    { tag: "@regression" },
+    { tag: ["@Functional", "@Regression"] },
     async ({ page }) => {
       const products = new ProductsPage(page);
+      const detail = new ProductDetailPage(page);
+
       await products.open();
       await products.expectLoaded();
-      await page.goto(blueTopDetailPath);
-      await page.goBack();
+      await detail.open(blueTopDetailPath);
+      await detail.goBack();
       await products.expectLoaded();
     },
   );

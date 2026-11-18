@@ -20,5 +20,5 @@ description: Implements an approved test plan as Playwright specs for automation
 - Do not add `waitForTimeout`.
 - Keep commit messages free of personal data and project names.
 - Follow the Page Object Model rules in `docs/page-objects.md`.
-- Follow every rule in `docs/quality-rules.md`. In particular: no hard-coded data in specs (use `tests/data/`), no `.first()` or `.nth()` to pick elements, each locator asserted with `toHaveCount(1)`, assertions on the business result, and a tag (`@smoke` or `@regression`) on every test.
+- Follow every rule in `docs/quality-rules.md`. Tags come only from its fixed vocabulary (`@Smoke`, `@Functional`, `@E2E`, `@Negative`, `@Regression`). Wrap each page action in `test.step`. Navigate through page objects, never `page.goto` in a spec. In particular: no hard-coded data in specs (use `tests/data/`), no `.first()` or `.nth()` to pick elements, each locator asserted with `toHaveCount(1)`, assertions on the business result, and a tag (`@smoke` or `@regression`) on every test.
 - Before reporting done, run `npm run check` and `npm test`. Both must pass.

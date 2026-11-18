@@ -5,7 +5,7 @@ import { blueTop, searchTerms } from "./data/testData";
 test.describe("Products page", () => {
   test(
     "lists products and finds one by search",
-    { tag: "@smoke" },
+    { tag: ["@Smoke", "@Regression"] },
     async ({ page }) => {
       const products = new ProductsPage(page);
       await products.open();
