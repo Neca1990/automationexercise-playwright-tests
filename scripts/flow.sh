@@ -33,16 +33,22 @@ require_pr_number() {
   fi
 }
 
-# Returns the number of findings from the newest review summary comment on the PR.
-# The review skill posts that comment as "Review findings: <n>".
+# Returns the number of findings from the newest "Review findings:" comment posted AFTER the PR's
+# latest commit. Older summaries do not count, so a merge never relies on a review of older code.
 latest_findings() {
-  local pr="$1" body
-  body="$(gh pr view "$pr" --json comments --jq '[.comments[].body | select(startswith("Review findings:"))] | last // ""')"
+  local pr="$1" last_commit body count
+  last_commit="$(gh pr view "$pr" --json commits --jq '.commits[-1].committedDate')"
+  body="$(gh pr view "$pr" --json comments --jq "[.comments[] | select(.createdAt > \"$last_commit\") | .body | select(startswith(\"Review findings:\"))] | last // \"\"")"
   if [ -z "$body" ]; then
-    echo "LOOP: no review summary found on PR #$pr" >&2
+    echo "FINDINGS: no review summary posted after the latest commit on PR #$pr" >&2
     return 1
   fi
-  echo "$body" | sed -E 's/^Review findings: *([0-9]+).*/\1/'
+  count="$(echo "$body" | sed -E 's/^Review findings: *([0-9]+).*/\1/')"
+  if ! [[ "$count" =~ ^[0-9]+$ ]]; then
+    echo "FINDINGS: summary is not a number: $body" >&2
+    return 1
+  fi
+  echo "$count"
 }
 
 open_pr_for_branch() {
@@ -55,10 +61,30 @@ do_review() {
     --allowedTools "Read" "Bash(git diff:*)" "Bash(git log:*)" "Bash(gh pr view:*)" "Bash(gh pr diff:*)" "Bash(gh pr comment:*)" "Bash(gh api:*)"
 }
 
+# Checks out the PR's head branch so fixes and the push go to the right place.
+ensure_pr_branch() {
+  local pr="$1" head
+  head="$(gh pr view "$pr" --json headRefName --jq '.headRefName')"
+  if [ "$(current_branch)" != "$head" ]; then
+    gh pr checkout "$pr"
+  fi
+}
+
+# Non-interactive fix session. It may edit files and commit, and nothing else.
+# If it commits nothing, the script stops instead of pushing an unchanged branch.
 do_fix() {
-  local pr="$1"
-  claude "Use the fix-review skill for pull request #$pr. Fix valid comments, reply to each one, then run scripts/flow.sh gate before pushing."
+  local pr="$1" before after
+  ensure_pr_branch "$pr"
+  before="$(git rev-parse HEAD)"
+  claude -p "Use the fix-review skill for pull request #$pr. Fix the valid comments, reply to each one with gh, and commit the fixes. Do not push. Do not merge." \
+    --permission-mode acceptEdits \
+    --allowedTools "Read" "Edit" "Write" "Bash(git:*)" "Bash(npm:*)" "Bash(npx:*)" "Bash(gh pr view:*)" "Bash(gh pr diff:*)" "Bash(gh pr comment:*)" "Bash(gh api:*)"
   gate
+  after="$(git rev-parse HEAD)"
+  if [ "$before" = "$after" ]; then
+    echo "FIX: the fix session made no commit. Stopping without a push."
+    exit 1
+  fi
   git push
 }
 
@@ -104,6 +130,7 @@ case "$stage" in
   fix)
     require_pr_number "$arg2"
     do_fix "$arg2"
+    echo "FIX: pushed."
     ;;
 
   loop)
