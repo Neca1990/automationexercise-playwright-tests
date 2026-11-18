@@ -25,3 +25,11 @@ export const invalidPassword = "WrongPassword123";
 export function unknownEmail(): string {
   return `unknown_${Date.now()}_${Math.floor(Math.random() * 1e6)}@example.test`;
 }
+
+/** Brand listed in the left sidebar; its page lists Blue Top. */
+export const brandPolo = { name: "Polo", path: "/brand_products/Polo" };
+
+/** Product detail page id for Blue Top. */
+export const blueTopDetailPath = "/product_details/1";
+
+export const purchaseQuantity = 3;

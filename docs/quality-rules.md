@@ -29,6 +29,8 @@ These rules apply to every spec, page object, and data file. Review checks them,
 
 ## Organization
 
+- Specs import `test` and `expect` from `tests/fixtures.ts`, never from `@playwright/test` directly. The fixture blocks third-party ad requests that cover buttons.
+
 14. Every spec has a tag: `@smoke` for the quick core checks, `@regression` for the rest.
 15. One page class per file in `pages/`, extending `BasePage`.
 

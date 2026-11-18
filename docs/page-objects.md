@@ -4,6 +4,7 @@
 
 - `pages/<Name>Page.ts`: one class per page or major component (HomePage, ProductsPage, LoginPage, CartPage).
 - `pages/BasePage.ts`: shared base class with the Playwright `page` and helpers used by all pages.
+- `pages/components/`: reusable parts of the site shared across pages (`Footer`, `PageControls` for scroll and scroll-to-top). Put an action here when two or more pages use it.
 - `tests/<feature>.spec.ts`: tests only. A test creates page objects and calls their methods. It does not use raw selectors.
 
 ## Rules

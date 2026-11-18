@@ -30,6 +30,21 @@ export class ProductsPage extends BasePage {
     await this.page.locator("#submit_search").click();
   }
 
+  /** Hover reveals the overlay with the "Add to cart" action on the named card. */
+  async hoverProduct(name: string): Promise<void> {
+    const card = this.productCardByName(name);
+    await expect(card).toHaveCount(1);
+    await card.hover();
+    await expect(card.locator(".product-overlay")).toBeVisible();
+  }
+
+  async expectNoSearchResults(): Promise<void> {
+    await expect(
+      this.page.getByRole("heading", { name: /Searched Products/i }),
+    ).toBeVisible();
+    await expect(this.productCards).toHaveCount(0);
+  }
+
   async expectSearchResultsFor(name: string): Promise<void> {
     await expect(
       this.page.getByRole("heading", { name: /Searched Products/i }),
