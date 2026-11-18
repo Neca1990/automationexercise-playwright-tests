@@ -43,7 +43,8 @@ latest_findings() {
     echo "FINDINGS: no review summary posted after the latest commit on PR #$pr" >&2
     return 1
   fi
-  count="$(echo "$body" | sed -E 's/^Review findings: *([0-9]+).*/\1/')"
+  # Only the first line carries the count; the rest of the summary is free text.
+  count="$(echo "$body" | head -n 1 | sed -E 's/^Review findings: *([0-9]+).*/\1/')"
   if ! [[ "$count" =~ ^[0-9]+$ ]]; then
     echo "FINDINGS: summary is not a number: $body" >&2
     return 1
