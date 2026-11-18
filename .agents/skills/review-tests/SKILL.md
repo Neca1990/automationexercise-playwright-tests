@@ -17,7 +17,7 @@ description: Reviews a pull request of Playwright tests for automationexercise.c
    - test quality: assertions that really check behavior, no fixed waits, no order dependence;
    - locators that are fragile or that match more than one element.
 4. Post each finding as a comment on the pull request with `gh pr comment <number> --body "<text>"`. Keep each comment short and state the file and line.
-5. Post one summary comment at the end with the count of findings.
+5. Post one summary comment at the end. It must start with `Review findings: <number>` where the number is the count of findings you posted (0 if none). The flow reads this line to decide whether to merge.
 
 ## Rules
 

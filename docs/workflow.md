@@ -34,6 +34,17 @@ The flow has five stages. Each stage is a Claude Code session with its own skill
 - `npm run check` (typecheck, format check, privacy guard) and `npm test` must pass locally before every push.
 - CI must pass before merge. The merge does not happen while any check fails.
 
+## Commands
+
+- `npm run flow -- plan`: planning session.
+- `npm run flow -- implement`: implement the plan on a feature branch, commit, no push.
+- `npm run flow -- gate`: typecheck, format, privacy guard, tests.
+- `npm run flow -- pr`: gate, push, open a PR into `main`.
+- `npm run flow -- review <PR>`: one review session that posts comments.
+- `npm run flow -- fix <PR>`: fix comments, gate, push.
+- `npm run flow -- loop <PR>`: review and fix until the review reports `Review findings: 0` (max 5 rounds).
+- `npm run flow -- merge <PR>`: merge into `main` when findings are 0 and CI passes. Asks for `yes` first.
+
 ## Branches
 
 - Each change goes on its own branch (`tests/<topic>`), then a pull request into `main`.
