@@ -34,8 +34,8 @@ export const blueTopDetailPath = "/product_details/1";
 
 export const purchaseQuantity = 3;
 
-/** Brand that the API lists and that owns Blue Top. */
-export const brandNames = { polo: "Polo" };
-
 /** Method that the products endpoint does not accept. */
 export const unsupportedMethodResponseCode = 405;
+
+/** Message the products endpoint returns for an unsupported method. */
+export const unsupportedMethodMessage = /not supported/i;

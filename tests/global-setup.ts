@@ -1,12 +1,19 @@
+import type { FullConfig } from "@playwright/test";
+
 /**
  * Runs once before the suite. Checks whether the site's HTML pages are available.
  *
  * When the site answers with an error or a protection page ("One moment, please...", HTTP 502/520),
  * the UI tests cannot run. The run does not stop: UI tests are skipped (see tests/fixtures.ts) and
  * the API tests still run. The check does not try to get around any protection.
+ *
+ * The base URL comes from playwright.config.ts, so the check and the tests always use the same host.
  */
-export default async function globalSetup(): Promise<void> {
-  const baseURL = "https://automationexercise.com/";
+export default async function globalSetup(config: FullConfig): Promise<void> {
+  const baseURL = config.projects[0]?.use.baseURL;
+  if (!baseURL) {
+    throw new Error("baseURL is not set in playwright.config.ts");
+  }
   let uiAvailable = false;
   let reason = "";
 

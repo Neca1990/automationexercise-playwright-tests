@@ -2,7 +2,8 @@ import { expect, test } from "../fixtures";
 import { ApiClient } from "./ApiClient";
 import {
   blueTop,
-  brandNames,
+  brandPolo,
+  unsupportedMethodMessage,
   unsupportedMethodResponseCode,
 } from "../data/testData";
 
@@ -31,7 +32,7 @@ test.describe("Products API", () => {
       const { responseCode, brands } = await api.getBrandsList();
 
       expect(responseCode).toBe(200);
-      expect(brands.map((item) => item.brand)).toContain(brandNames.polo);
+      expect(brands.map((item) => item.brand)).toContain(brandPolo.name);
     },
   );
 
@@ -43,7 +44,7 @@ test.describe("Products API", () => {
       const result = await api.postToProductsList();
 
       expect(result.responseCode).toBe(unsupportedMethodResponseCode);
-      expect(result.message).toMatch(/not supported/i);
+      expect(result.message).toMatch(unsupportedMethodMessage);
     },
   );
 });
