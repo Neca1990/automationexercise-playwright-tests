@@ -6,6 +6,7 @@
 - `pages/`: page objects (POM). Selectors and page actions live here. See `docs/page-objects.md`.
 - `tests/helpers/`: shared helpers, added only when two or more specs need the same code.
 - `playwright.config.ts`: base URL and reporters. Do not hard-code the URL in specs.
+- `tests/global-setup.ts`: runs once before the suite. Checks that the site returns its home page and stops the run with one clear message if it does not. It reads the URL from `playwright.config.ts`.
 
 ## Naming
 
