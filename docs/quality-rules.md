@@ -40,11 +40,11 @@ These rules apply to every spec, page object, and data file. Review checks them,
       Typical sets: `@Smoke @Regression`, `@Functional @Regression`, `@E2E @Regression`, `@Functional @Negative @Regression`.
 15. One page class per file in `pages/`, extending `BasePage`.
 
-## Site outages
+## Before every push
 
-22. API tests (`tests/api/`) do not depend on the browser UI. They run in CI and when the UI is down.
-23. A UI test never runs against a site that is down. Skips come from `tests/fixtures.ts` when `UI_DOWN=1`, with a reason. Do not add `test.skip` in individual specs for outages.
-24. Tests never try to get around a site's protection pages. If the site blocks a runner, use a local run, not a workaround.
+16. `npm run check` passes: typecheck, format check, and privacy guard.
+17. `npm test` passes. A test that fails once and then passes is flaky: report it and fix it.
+18. CI checks (typecheck, format, guard) pass on the pull request, and the live tests pass locally (`merge` runs them).
 
 ## Steps and navigation
 
@@ -52,8 +52,8 @@ These rules apply to every spec, page object, and data file. Review checks them,
 20. Tests navigate through page objects (`open`, `goBack`, `openFromSidebar`). A spec does not call `page.goto` itself.
 21. Each feature branch covers one topic. Work is never committed to `main` directly.
 
-## Before every push
+## Site outages
 
-16. `npm run check` passes: typecheck, format check, and privacy guard.
-17. `npm test` passes. A test that fails once and then passes is flaky: report it and fix it.
-18. CI checks (typecheck, format, guard) pass on the pull request, and the live tests pass locally (`merge` runs them).
+22. API tests (`tests/api/`) do not depend on the browser UI. They run in CI and when the UI is down.
+23. A UI test never runs against a site that is down. Skips come from `tests/fixtures.ts` when `UI_DOWN=1`, with a reason. Do not add `test.skip` in individual specs for outages.
+24. Tests never try to get around a site's protection pages. If the site blocks a runner, use a local run, not a workaround.

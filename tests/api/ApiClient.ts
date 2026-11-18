@@ -80,16 +80,15 @@ export class ApiClient {
 
   /** Sends POST to a GET-only endpoint. The site reports the error in the body, not in the HTTP status. */
   async postToProductsList(): Promise<{
-    httpStatus: number;
     responseCode: number;
     message: string;
   }> {
     return test.step(`POST ${endpoints.productsList}`, async () => {
-      const response = await this.request.post(endpoints.productsList);
-      const body = await this.readBody(response);
+      const body = await this.readBody(
+        await this.request.post(endpoints.productsList),
+      );
       expect(typeof body.message).toBe("string");
       return {
-        httpStatus: response.status(),
         responseCode: body.responseCode as number,
         message: body.message as string,
       };
