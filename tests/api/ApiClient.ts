@@ -100,8 +100,9 @@ export class ApiClient {
     response: APIResponse,
   ): Promise<Record<string, unknown>> {
     const text = await response.text();
-    // A protection or error page is an outage, not an API failure: skip with a reason instead of failing.
-    if (text.trimStart().startsWith("<")) {
+    // A protection or error page (HTML with a non-200 status) is an outage, not an API failure: skip with a reason.
+    // HTML with HTTP 200 is unexpected and fails, so a broken endpoint cannot pass as skipped.
+    if (response.status() !== 200 && text.trimStart().startsWith("<")) {
       test.skip(
         true,
         `automationexercise.com returned a protection or error page (HTTP ${response.status()}) instead of JSON. ` +
