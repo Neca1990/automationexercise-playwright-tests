@@ -78,7 +78,10 @@ export class ApiClient {
     });
   }
 
-  /** Sends POST to a GET-only endpoint. The site reports the error in the body, not in the HTTP status. */
+  /**
+   * Sends POST to a GET-only endpoint. The site reports the error in the body, not in the HTTP status.
+   * Seen 2026-11-19: HTTP 200 with responseCode 405 from a local run of `npm run test:api`.
+   */
   async postToProductsList(): Promise<{
     responseCode: number;
     message: string;
@@ -100,7 +103,8 @@ export class ApiClient {
     response: APIResponse,
   ): Promise<Record<string, unknown>> {
     const text = await response.text();
-    // A protection or error page (HTML with a non-200 status) is an outage, not an API failure: skip with a reason.
+    // Site quirk: a protection or error page (HTML with a non-200 status) is an outage, not an API failure: skip with a reason.
+    // Documented from the AGENTS.md note that the site blocks CI runners; not seen in a local run on 2026-11-19 (JSON returned).
     // HTML with HTTP 200 is unexpected and fails, so a broken endpoint cannot pass as skipped.
     if (response.status() !== 200 && text.trimStart().startsWith("<")) {
       test.skip(

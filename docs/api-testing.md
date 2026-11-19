@@ -20,4 +20,5 @@
 
 ## Known site behavior
 
-- POST to `/api/productsList` returns HTTP 200 with `responseCode: 405` and a "not supported" message.
+- POST to `/api/productsList` returns HTTP 200 with `responseCode: 405` and a "not supported" message. Seen 2026-11-19 in a local run of `npm run test:api`.
+- Protection page (HTML with a non-200 status) for blocked runners: noted from the AGENTS.md runner-block note, not seen in a local run on 2026-11-19.
