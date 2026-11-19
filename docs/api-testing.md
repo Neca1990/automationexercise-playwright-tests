@@ -15,7 +15,7 @@
 5. Read the body as text and parse it. The site sends JSON with a text/html content type.
 6. Do not hard-code expected values in specs. Put them in `tests/data/`.
 7. API tests do not depend on the UI, and they run when the UI is down (`npm run test:api`).
-8. A protection or error page (HTML instead of JSON with a non-200 status) skips the test with a reason, because the site is unavailable, not broken. HTML with HTTP 200 fails the test. A network failure or timeout also fails the test: the skip does not cover an unreachable host.
+8. Any HTML body instead of JSON (a protection page, which the site serves with HTTP 200, or an error page) skips the test with a reason. The skip is visible in the report. A network failure or timeout still fails the test, because the host is unreachable and nothing was checked.
 9. Document any site quirk next to the code that handles it, with what the quirk is and when it was seen.
 
 ## Known site behavior

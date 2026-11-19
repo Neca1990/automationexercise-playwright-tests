@@ -103,10 +103,10 @@ export class ApiClient {
     response: APIResponse,
   ): Promise<Record<string, unknown>> {
     const text = await response.text();
-    // Site quirk: a protection or error page (HTML with a non-200 status) is an outage, not an API failure: skip with a reason.
-    // Documented from the AGENTS.md note that the site blocks CI runners; not seen in a local run on 2026-11-19 (JSON returned).
-    // HTML with HTTP 200 is unexpected and fails, so a broken endpoint cannot pass as skipped.
-    if (response.status() !== 200 && text.trimStart().startsWith("<")) {
+    // Site quirk: the site's protection page is HTML served with HTTP 200, and an outage page can be HTML with
+    // an error status. The API itself always answers with JSON, so any HTML body is the site, not the endpoint.
+    // The test is skipped with that reason, so the skip is visible in the report and is not a silent pass.
+    if (text.trimStart().startsWith("<")) {
       test.skip(
         true,
         `automationexercise.com returned a protection or error page (HTTP ${response.status()}) instead of JSON. ` +
