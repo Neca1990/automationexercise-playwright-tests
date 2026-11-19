@@ -1,7 +1,8 @@
 name: checks
 
-# CI runs the checks that do not call automationexercise.com. The live browser tests run locally
-# (npm test, or scripts/flow.sh gate) because the site blocks GitHub-hosted runner IPs.
+# CI runs the static checks (typecheck, format, privacy guard) and the API tests. The API tests call
+# automationexercise.com live. The browser UI tests run locally (npm test, or scripts/flow.sh gate)
+# because the site blocks GitHub-hosted runner IPs.
 
 on:
   push:
@@ -33,3 +34,6 @@ jobs:
 
       - name: Run privacy guard
         run: npm run guard
+
+      - name: API tests (run even when the site UI is down)
+        run: npm run test:api

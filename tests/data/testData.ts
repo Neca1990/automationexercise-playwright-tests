@@ -33,3 +33,12 @@ export const brandPolo = { name: "Polo", path: "/brand_products/Polo" };
 export const blueTopDetailPath = "/product_details/1";
 
 export const purchaseQuantity = 3;
+
+/** Value of the `responseCode` field in the body of a successful API response (not the HTTP status). */
+export const okResponseCode = 200;
+
+/** Method that the products endpoint does not accept. */
+export const unsupportedMethodResponseCode = 405;
+
+/** Message the products endpoint returns for an unsupported method. */
+export const unsupportedMethodMessage = /not supported/i;
