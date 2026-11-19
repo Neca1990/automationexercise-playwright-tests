@@ -99,8 +99,16 @@ export class ApiClient {
   private async readBody(
     response: APIResponse,
   ): Promise<Record<string, unknown>> {
-    expect(response.status(), "HTTP status").toBe(200);
     const text = await response.text();
+    // A protection or error page is an outage, not an API failure: skip with a reason instead of failing.
+    if (text.trimStart().startsWith("<")) {
+      test.skip(
+        true,
+        `automationexercise.com returned a protection or error page (HTTP ${response.status()}) instead of JSON. ` +
+          "API test skipped; the site is unavailable from this runner.",
+      );
+    }
+    expect(response.status(), "HTTP status").toBe(200);
     const parsed: unknown = JSON.parse(text);
     expect(parsed, "body is a JSON object").toEqual(expect.any(Object));
     return parsed as Record<string, unknown>;

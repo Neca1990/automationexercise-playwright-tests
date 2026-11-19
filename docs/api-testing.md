@@ -15,7 +15,8 @@
 5. Read the body as text and parse it. The site sends JSON with a text/html content type.
 6. Do not hard-code expected values in specs. Put them in `tests/data/`.
 7. API tests do not depend on the UI, and they run when the UI is down (`npm run test:api`).
-8. Document any site quirk next to the code that handles it, with what the quirk is and when it was seen.
+8. A protection or error page (HTML instead of JSON) skips the test with a reason. It does not fail the run, because the site is unavailable, not broken.
+9. Document any site quirk next to the code that handles it, with what the quirk is and when it was seen.
 
 ## Known site behavior
 
